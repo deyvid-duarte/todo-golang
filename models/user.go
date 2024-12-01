@@ -23,3 +23,16 @@ func (u *User) EmailAlreadyExists() bool {
 	database.Connection.Model(u).Where("email = ?", u.Email).Count(&count)
 	return count > 0
 }
+
+func GetAllUsers() ([]map[string]interface{}, error) {
+	var user User
+	var users []map[string]interface{}
+	result := database.Connection.Model(&user).Select("id", "name", "email").Find(&users)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	if len(users) == 0 {
+		return []map[string]interface{}{}, nil
+	}
+	return users, nil
+}

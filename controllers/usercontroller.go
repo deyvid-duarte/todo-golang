@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"todo-golang/helpers"
+	"todo-golang/models"
 	"todo-golang/usecases/user"
 )
 type UserInput struct {
@@ -14,7 +15,13 @@ type UserInput struct {
 }
 
 func ListUsers (w http.ResponseWriter, _ *http.Request)  {
-	io.WriteString(w, "Listando todos os usuários!")
+	users, err := models.GetAllUsers()
+	w.Header().Add("Content-Type", "application/json")
+	if err != nil {
+		json.NewEncoder(w).Encode(map[string]interface{}{"error": err.Error()})
+	} else {
+		json.NewEncoder(w).Encode(users)
+	}
 }
 
 func FindOneUser (w http.ResponseWriter, _ *http.Request) {
