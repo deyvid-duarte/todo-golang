@@ -2,6 +2,7 @@ package models
 
 import (
 	"todo-golang/database"
+	"todo-golang/helpers"
 
 	"gorm.io/gorm"
 )
@@ -25,9 +26,8 @@ func (u *User) EmailAlreadyExists() bool {
 }
 
 func GetAllUsers() ([]map[string]interface{}, error) {
-	var user User
 	var users []map[string]interface{}
-	result := database.Connection.Model(&user).Select("id", "name", "email").Find(&users)
+	result := database.Connection.Model(&User{}).Select("id", "name", "email").Find(&users)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -35,4 +35,13 @@ func GetAllUsers() ([]map[string]interface{}, error) {
 		return []map[string]interface{}{}, nil
 	}
 	return users, nil
+}
+
+func FindOneById(id int) (*map[string]interface{}, *helpers.CustomError) {
+	var user map[string]interface{}
+	result := database.Connection.Model(&User{}).Select("id", "name", "email").First(&user, id)
+	if result.Error != nil {
+		return nil, helpers.NewError(result.Error.Error(), 404)
+	}
+	return &user, nil
 }

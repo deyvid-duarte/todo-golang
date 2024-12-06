@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
 	"todo-golang/helpers"
 	"todo-golang/models"
 	"todo-golang/usecases/user"
@@ -24,8 +25,16 @@ func ListUsers (w http.ResponseWriter, _ *http.Request)  {
 	}
 }
 
-func FindOneUser (w http.ResponseWriter, _ *http.Request) {
-	io.WriteString(w, "Listando um usuário!")
+func FindOneUser (w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(r.PathValue("id"))
+	user, err := models.FindOneById(id)
+	w.Header().Set("Content-Type", "application/json")
+	if err != nil {
+		w.WriteHeader(err.Code)
+		json.NewEncoder(w).Encode(map[string]interface{}{"error": err.Description})
+	} else {
+		json.NewEncoder(w).Encode(user)
+	}
 }
 
 func CreateUser (w http.ResponseWriter, r *http.Request) {
