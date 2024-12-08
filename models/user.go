@@ -45,3 +45,11 @@ func FindOneById(id int) (*map[string]interface{}, *helpers.CustomError) {
 	}
 	return &user, nil
 }
+
+func DeleteById(id int) *helpers.CustomError {
+	result := database.Connection.Delete(&User{}, id)
+	if result.Error != nil {
+		return helpers.NewError(result.Error.Error(), 500)
+	}
+	return nil
+}

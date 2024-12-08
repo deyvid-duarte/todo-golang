@@ -59,6 +59,15 @@ func UpdateUser (w http.ResponseWriter, _ *http.Request) {
 	io.WriteString(w, "Atualizando um usuário!")
 }
 
-func DeleteUser (w http.ResponseWriter, _ *http.Request) {
-	io.WriteString(w, "Atualizando um usuário!")
+func DeleteUser (w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(r.PathValue("id"))
+	err := user.Delete(id)
+	w.Header().Set("Content-Type", "application/json")
+	if err != nil {
+		w.WriteHeader(err.Code)
+		json.NewEncoder(w).Encode(map[string]interface{}{"error": err.Description})
+	} else {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]interface{}{"message": "Usuário removido com sucesso!"})
+	}
 }
