@@ -14,7 +14,7 @@ func Create(name string, email string, password string) (*models.User, *helpers.
 		panic(err.Error())
 	}
 	user := models.User{Name: name, Email: email, Password: hashedPassword}
-	if user.EmailAlreadyExists() {
+	if user.EmailAlreadyExists(nil) {
 		return nil, helpers.NewError("email is already in use", 422)
 	}
 	if !user.Save() {

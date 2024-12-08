@@ -19,9 +19,13 @@ func (u *User) Save() bool {
 	return result.RowsAffected > 0
 }
 
-func (u *User) EmailAlreadyExists() bool {
+func (u *User) EmailAlreadyExists(excludedId *int) bool {
 	var count int64
-	database.Connection.Model(u).Where("email = ?", u.Email).Count(&count)
+	builder := database.Connection.Model(u).Where("email = ?", u.Email)
+	if excludedId != nil {
+		builder.Where("id != ?", excludedId)
+	}
+	builder.Count(&count)
 	return count > 0
 }
 
@@ -48,6 +52,14 @@ func FindOneById(id int) (*map[string]interface{}, *helpers.CustomError) {
 
 func DeleteById(id int) *helpers.CustomError {
 	result := database.Connection.Delete(&User{}, id)
+	if result.Error != nil {
+		return helpers.NewError(result.Error.Error(), 500)
+	}
+	return nil
+}
+
+func UpdateById(id int, columns map[string]interface{}) *helpers.CustomError {
+	result := database.Connection.Model(&User{}).Where("id = ?", id).Updates(columns)
 	if result.Error != nil {
 		return helpers.NewError(result.Error.Error(), 500)
 	}

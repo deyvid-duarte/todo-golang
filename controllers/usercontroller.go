@@ -2,17 +2,21 @@ package controllers
 
 import (
 	"encoding/json"
-	"io"
 	"net/http"
 	"strconv"
 	"todo-golang/helpers"
 	"todo-golang/models"
 	"todo-golang/usecases/user"
 )
-type UserInput struct {
+type UserCreateInput struct {
 	Name string `json:"name" validate:"required,min=3"`
 	Email string `json:"email" validate:"required,email"`
 	Password string  `json:"password" validate:"required,min=8"`
+}
+
+type UserUpdateInput struct {
+	Name string `json:"name" validate:"required,min=3"`
+	Email string `json:"email" validate:"required,email"`
 }
 
 func ListUsers (w http.ResponseWriter, _ *http.Request)  {
@@ -38,7 +42,7 @@ func FindOneUser (w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateUser (w http.ResponseWriter, r *http.Request) {
-	var userInput UserInput
+	var userInput UserCreateInput
 	json.NewDecoder(r.Body).Decode(&userInput)
 	defer r.Body.Close()
 	w.Header().Add("Content-Type", "application/json")
@@ -55,8 +59,23 @@ func CreateUser (w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func UpdateUser (w http.ResponseWriter, _ *http.Request) {
-	io.WriteString(w, "Atualizando um usuário!")
+func UpdateUser (w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(r.PathValue("id"))
+	var userInput UserUpdateInput
+	json.NewDecoder(r.Body).Decode(&userInput)
+	defer r.Body.Close()
+	w.Header().Add("Content-Type", "application/json")
+	if helpers.ValidateRequest(userInput, w) {
+		return
+	}
+	err := user.Update(id, userInput.Name, userInput.Email)
+	if err != nil {
+		w.WriteHeader(err.Code)
+		json.NewEncoder(w).Encode(map[string]interface{}{"error": err.Description})
+	} else {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]interface{}{"success": "user successfuly updated!"})
+	}
 }
 
 func DeleteUser (w http.ResponseWriter, r *http.Request) {
@@ -68,6 +87,6 @@ func DeleteUser (w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]interface{}{"error": err.Description})
 	} else {
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(map[string]interface{}{"message": "Usuário removido com sucesso!"})
+		json.NewEncoder(w).Encode(map[string]interface{}{"success": "user successfuly removed!"})
 	}
 }
