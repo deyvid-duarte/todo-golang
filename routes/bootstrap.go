@@ -5,6 +5,5 @@ import (
 )
 
 func StartRoutes(router *http.ServeMux) {
-	HandleRouteTask(router)
 	HandleRouteUser(router)
 }

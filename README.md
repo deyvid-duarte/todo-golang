@@ -1,5 +1,5 @@
-# GoLang To-Do
+# GoLang CRUD
 
-A simple to-do list with authentication created with golang and mysql
+A simple user CRUD created with golang and sqlite
 
-Obs.: This project was created to practice the go lang
+Obs.: This project was created to practice GOLANG
